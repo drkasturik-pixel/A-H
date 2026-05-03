@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beginning Sounds Game</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #1f2937;
+    }
+
+    main {
+      width: min(900px, 100%);
+      background: white;
+      border: 1px solid #d8e0ec;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 18px 45px rgba(31, 41, 55, 0.12);
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 22px;
+      border-bottom: 1px solid #d8e0ec;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .pill {
+      border: 1px solid #d8e0ec;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: #f8fafc;
+      font-weight: bold;
+      color: #64748b;
+    }
+
+    .game {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 500px;
+    }
+
+    .picture-panel {
+      display: grid;
+      place-items: center;
+      background: #eef6ff;
+      padding: 28px;
+      border-right: 1px solid #d8e0ec;
+    }
+
+    .picture-frame {
+      width: min(320px, 100%);
+      aspect-ratio: 1;
+      background: white;
+      border: 3px solid #bfdbfe;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+    }
+
+    .picture {
+      font-size: 120px;
+    }
+
+    .question-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 22px;
+      padding: 34px;
+    }
+
+    .sentence-count {
+      color: #2563eb;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+
+    .prompt {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.2;
+      font-weight: bold;
+    }
+
+    .hint {
+      margin: 0;
+      color: #64748b;
+      font-size: 18px;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .choice {
+      min-height: 86px;
+      border: 2px solid #b6c6dc;
+      border-radius: 8px;
+      background: white;
+      font-size: 42px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .choice:hover {
+      border-color: #2563eb;
+    }
+
+    .choice.correct {
+      color: white;
+      border-color: #16a34a;
+      background: #16a34a;
+    }
+
+    .choice.wrong {
+      color: white;
+      border-color: #dc2626;
+      background: #dc2626;
+    }
+
+    .feedback {
+      min-height: 30px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .good {
+      color: #16a34a;
+    }
+
+    .try {
+      color: #dc2626;
+    }
+
+    .primary,
+    .secondary {
+      min-height: 46px;
+      border-radius: 8px;
+      padding: 0 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .primary {
+      border: none;
+      color: white;
+      background: #2563eb;
+    }
+
+    .primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .secondary {
+      border: 1px solid #d8e0ec;
+      background: #f8fafc;
+    }
+
+    .complete {
+      display: none;
+      text-align: center;
+      padding: 30px;
+      border-top: 1px solid #d8e0ec;
+      background: #fffbeb;
+    }
+
+    .complete.show {
+      display: block;
+    }
+
+    @media (max-width: 700px) {
+      .game {
+        grid-template-columns: 1fr;
+      }
+
+      .picture-panel {
+        border-right: 0;
+        border-bottom: 1px solid #d8e0ec;
+      }
+
+      .picture-frame {
+        max-width: 220px;
+      }
+
+      .picture {
+        font-size: 90px;
+      }
+
+      .question-panel {
+        padding: 24px 18px;
+      }
+
+      .prompt {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="topbar">
+      <h1>Beginning Sounds</h1>
+      <div class="pill">Round <span id="round">1</span>/10</div>
+      <div class="pill">Score <span id="score">0</span></div>
+    </section>
+
+    <section class="game">
+      <div class="picture-panel">
+        <div class="picture-frame">
+          <div class="picture" id="picture"></div>
+        </div>
+      </div>
+
+      <div class="question-panel">
+        <div class="sentence-count" id="sentenceCount">Sentence 1</div>
+        <p class="prompt" id="prompt"></p>
+        <p class="hint">Click the letter that matches the first sound of the picture.</p>
+        <div class="choices" id="choices"></div>
+        <div class="feedback" id="feedback"></div>
+        <button class="primary" id="nextButton" disabled>Next</button>
+        <button class="secondary" id="restartButton">Restart</button>
+      </div>
+    </section>
+
+    <section class="complete" id="complete">
+      <h2>Great listening!</h2>
+      <p id="finalScore"></p>
+      <button class="primary" id="playAgainButton">Play Again</button>
+    </section>
+  </main>
+
+  <script>
+    const questions = [
+      { word: "Apple", emoji: "\u{1F34E}", answer: "A", options: ["A", "M", "S"] },
+      { word: "Ball", emoji: "\u{26BD}", answer: "B", options: ["D", "B", "T"] },
+      { word: "Cat", emoji: "\u{1F431}", answer: "C", options: ["C", "P", "R"] },
+      { word: "Dog", emoji: "\u{1F436}", answer: "D", options: ["G", "L", "D"] },
+      { word: "Fish", emoji: "\u{1F41F}", answer: "F", options: ["F", "N", "H"] },
+      { word: "Hat", emoji: "\u{1F3A9}", answer: "H", options: ["K", "H", "J"] },
+      { word: "Lion", emoji: "\u{1F981}", answer: "L", options: ["L", "W", "Y"] },
+      { word: "Moon", emoji: "\u{1F319}", answer: "M", options: ["S", "M", "V"] },
+      { word: "Sun", emoji: "\u{2600}\u{FE0F}", answer: "S", options: ["Z", "R", "S"] },
+      { word: "Tree", emoji: "\u{1F333}", answer: "T", options: ["T", "B", "P"] }
+    ];
+
+    let current = 0;
+    let score = 0;
+    let answered = false;
+
+    const roundEl = document.getElementById("round");
+    const scoreEl = document.getElementById("score");
+    const sentenceCountEl = document.getElementById("sentenceCount");
+    const pictureEl = document.getElementById("picture");
+    const promptEl = document.getElementById("prompt");
+    const choicesEl = document.getElementById("choices");
+    const feedbackEl = document.getElementById("feedback");
+    const nextButton = document.getElementById("nextButton");
+    const restartButton = document.getElementById("restartButton");
+    const completeEl = document.getElementById("complete");
+    const finalScoreEl = document.getElementById("finalScore");
+    const playAgainButton = document.getElementById("playAgainButton");
+
+    function showQuestion() {
+      const q = questions[current];
+      answered = false;
+
+      roundEl.textContent = current + 1;
+      scoreEl.textContent = score;
+      sentenceCountEl.textContent = "Sentence " + (current + 1);
+      pictureEl.textContent = q.emoji;
+      promptEl.textContent = q.word + " begins with which sound?";
+      feedbackEl.textContent = "";
+      feedbackEl.className = "feedback";
+      nextButton.disabled = true;
+      nextButton.textContent = "Next";
+      choicesEl.innerHTML = "";
+
+      q.options.forEach(function(letter) {
+        const button = document.createElement("button");
+        button.className = "choice";
+        button.textContent = letter;
+
+        button.onclick = function() {
+          checkAnswer(button, letter);
+        };
+
+        choicesEl.appendChild(button);
+      });
+    }
+
+    function checkAnswer(button, letter) {
+      if (answered) return;
+
+      answered = true;
+      const q = questions[current];
+
+      if (letter === q.answer) {
+        score++;
+        scoreEl.textContent = score;
+        feedbackEl.textContent = "Yes! " + q.word + " starts with " + q.answer + ".";
+        feedbackEl.className = "feedback good";
+        button.classList.add("correct");
+      } else {
+        feedbackEl.textContent = "Good try. " + q.word + " starts with " + q.answer + ".";
+        feedbackEl.className = "feedback try";
+        button.classList.add("wrong");
+
+        Array.from(choicesEl.children).forEach(function(choice) {
+          if (choice.textContent === q.answer) {
+            choice.classList.add("correct");
+          }
+        });
+      }
+
+      Array.from(choicesEl.children).forEach(function(choice) {
+        choice.disabled = true;
+      });
+
+      nextButton.disabled = false;
+
+      if (current === questions.length - 1) {
+        nextButton.textContent = "Finish";
+      }
+    }
+
+    function nextQuestion() {
+      if (current === questions.length - 1) {
+        completeEl.classList.add("show");
+        finalScoreEl.textContent = "You matched " + score + " out of 10 beginning sounds.";
+        return;
+      }
+
+      current++;
+      showQuestion();
+    }
+
+    function restartGame() {
+      current = 0;
+      score = 0;
+      completeEl.classList.remove("show");
+      showQuestion();
+    }
+
+    nextButton.onclick = nextQuestion;
+    restartButton.onclick = restartGame;
+    playAgainButton.onclick = restartGame;
+
+    showQuestion();
+  </script>
+</body>
+</html>
